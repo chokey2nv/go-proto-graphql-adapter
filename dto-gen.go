@@ -1,4 +1,4 @@
-package adapter
+package proto_gql_adapter
 
 import (
 	"fmt"
