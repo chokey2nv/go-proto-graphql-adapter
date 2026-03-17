@@ -65,7 +65,7 @@ func generateDTORecursive(sb *strings.Builder, t reflect.Type, dtoName, currentP
 		}
 
 		fieldType := resolveDTOField(f, sb, currentPkg, imports, generated)
-		jsonName := toJSONName(f.Name)
+		jsonName := resolveJSONName(f)
 		fields = append(fields, fmt.Sprintf("    %s %s `json:\"%s\"`", f.Name, fieldType, jsonName))
 	}
 
@@ -125,9 +125,22 @@ func resolveDTOField(f reflect.StructField, sb *strings.Builder, currentPkg stri
 // ------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------
+func resolveJSONName(f reflect.StructField) string {
+	tag := f.Tag.Get("json")
+	if tag != "" {
+		parts := strings.Split(tag, ",")
+		if parts[0] != "" && parts[0] != "-" {
+			return parts[0]
+		}
+	}
+
+	// fallback
+	return toJSONName(f.Name)
+}
 func toJSONName(name string) string {
 	if name == "" {
 		return ""
 	}
 	return strings.ToLower(name[:1]) + name[1:]
 }
+
